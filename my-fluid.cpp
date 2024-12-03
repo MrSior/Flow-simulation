@@ -1,66 +1,66 @@
 #include "bits/stdc++.h"
 using namespace std;
 
-constexpr size_t N = 36, M = 84;
-// constexpr size_t N = 14, M = 5;
+//constexpr size_t N = 36, M = 84;
+ constexpr size_t N = 14, M = 5;
 constexpr size_t T = 1'000'000;
 constexpr std::array<pair<int, int>, 4> deltas{{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}};
 
-// char field[N][M + 1] = {
-//     "#####",
-//     "#.  #",
-//     "#.# #",
-//     "#.# #",
-//     "#.# #",
-//     "#.# #",
-//     "#.# #",
-//     "#.# #",
-//     "#...#",
-//     "#####",
-//     "#   #",
-//     "#   #",
-//     "#   #",
-//     "#####",
-// };
+ char field[N][M + 1] = {
+     "#####",
+     "#.  #",
+     "#.# #",
+     "#.# #",
+     "#.# #",
+     "#.# #",
+     "#.# #",
+     "#.# #",
+     "#...#",
+     "#####",
+     "#   #",
+     "#   #",
+     "#   #",
+     "#####",
+ };
 
-char field[N][M + 1] = {
-        "####################################################################################",
-        "#                                                                                  #",
-        "#                                                                                  #",
-        "#                                                                                  #",
-        "#                                                                                  #",
-        "#                                                                                  #",
-        "#                                       .........                                  #",
-        "#..............#            #           .........                                  #",
-        "#..............#            #           .........                                  #",
-        "#..............#            #           .........                                  #",
-        "#..............#            #                                                      #",
-        "#..............#            #                                                      #",
-        "#..............#            #                                                      #",
-        "#..............#            #                                                      #",
-        "#..............#............#                                                      #",
-        "#..............#............#                                                      #",
-        "#..............#............#                                                      #",
-        "#..............#............#                                                      #",
-        "#..............#............#                                                      #",
-        "#..............#............#                                                      #",
-        "#..............#............#                                                      #",
-        "#..............#............#                                                      #",
-        "#..............#............################                     #                 #",
-        "#...........................#....................................#                 #",
-        "#...........................#....................................#                 #",
-        "#...........................#....................................#                 #",
-        "##################################################################                 #",
-        "#                                                                                  #",
-        "#                                                                                  #",
-        "#                                                                                  #",
-        "#                                                                                  #",
-        "#                                                                                  #",
-        "#                                                                                  #",
-        "#                                                                                  #",
-        "#                                                                                  #",
-        "####################################################################################",
-};
+//char field[N][M + 1] = {
+//        "####################################################################################",
+//        "#                                                                                  #",
+//        "#                                                                                  #",
+//        "#                                                                                  #",
+//        "#                                                                                  #",
+//        "#                                                                                  #",
+//        "#                                       .........                                  #",
+//        "#..............#            #           .........                                  #",
+//        "#..............#            #           .........                                  #",
+//        "#..............#            #           .........                                  #",
+//        "#..............#            #                                                      #",
+//        "#..............#            #                                                      #",
+//        "#..............#            #                                                      #",
+//        "#..............#            #                                                      #",
+//        "#..............#............#                                                      #",
+//        "#..............#............#                                                      #",
+//        "#..............#............#                                                      #",
+//        "#..............#............#                                                      #",
+//        "#..............#............#                                                      #",
+//        "#..............#............#                                                      #",
+//        "#..............#............#                                                      #",
+//        "#..............#............#                                                      #",
+//        "#..............#............################                     #                 #",
+//        "#...........................#....................................#                 #",
+//        "#...........................#....................................#                 #",
+//        "#...........................#....................................#                 #",
+//        "##################################################################                 #",
+//        "#                                                                                  #",
+//        "#                                                                                  #",
+//        "#                                                                                  #",
+//        "#                                                                                  #",
+//        "#                                                                                  #",
+//        "#                                                                                  #",
+//        "#                                                                                  #",
+//        "#                                                                                  #",
+//        "####################################################################################",
+//};
 
 template<uint8_t N, uint8_t K>
 struct Fixed {
@@ -72,14 +72,14 @@ struct Fixed {
                     std::conditional_t<n <= 32, int32_t,
                     std::conditional_t<n <= 64, int64_t, void>>>>;
 
-    static_assert(std::is_same_v<val_t, void>, "n must be less than 64");
+    static_assert(!std::is_same_v<val_t, void>, "n must be less than 64");
 
-    constexpr Fixed(int v): v(v << k) {}
+    constexpr Fixed(val_t v): v(v << k) {}
     constexpr Fixed(float f): v(f * (1 << k)) {}
     constexpr Fixed(double f): v(f * (1 << k)) {}
     constexpr Fixed(): v(0) {}
 
-    static constexpr Fixed from_raw(int32_t x) {
+    static constexpr Fixed from_raw(val_t x) {
         Fixed ret;
         ret.v = x;
         return ret;
@@ -93,61 +93,77 @@ struct Fixed {
     template<uint8_t otherN, uint8_t otherK>
     auto operator+(Fixed<otherN, otherK> other) {
         if constexpr (n > other.n) {
-            return decltype(*this)(this->v + other.v);
+            return Fixed::from_raw(this->v + other.v);
         } else {
-            return decltype(other)(this->v + other.v);
+            return decltype(other)::from_raw(this->v + other.v);
         }
     }
 
     template<uint8_t otherN, uint8_t otherK>
     auto operator-(Fixed<otherN, otherK> other) {
         if constexpr (n > other.n) {
-            return Fixed<n, k>(v - other.v);
+            return decltype(*this)::from_raw(v - other.v);
         } else {
-            return Fixed<other.n, other.k>(v - other.v);
+            return decltype(other)::from_raw(v - other.v);
         }
     }
 
     template<uint8_t otherN, uint8_t otherK>
     auto operator*(Fixed<otherN, otherK> other) {
         if constexpr (n > other.n) {
-            return Fixed<n, k>(((int64_t) v * other.v) >> 16);
+            return decltype(*this)::from_raw(((int64_t) v * other.v) >> 16);
         } else {
-            return Fixed<other.n, other.k>(((int64_t) v * other.v) >> 16);
+            return decltype(other)::from_raw(((int64_t) v * other.v) >> 16);
         }
     }
 
     template<uint8_t otherN, uint8_t otherK>
     auto operator/(Fixed<otherN, otherK> other) {
         if constexpr (n > other.n) {
-            return Fixed<n, k>(((int64_t) v << 16) / other.v);
+            return decltype(*this)::from_raw(((int64_t) v << 16) / other.v);
         } else {
-            return Fixed<other.n, other.k>(((int64_t) v << 16) / other.v);
+            return decltype(other)::from_raw(((int64_t) v << 16) / other.v);
+        }
+    }
+
+    auto operator/(int other_v) {
+        if constexpr (n > 32) {
+            return decltype(*this)::from_raw(((int64_t) v << 16) / other_v);
+        } else {
+            return Fixed<32, 16>::from_raw(((int64_t) v << 16) / other_v);
         }
     }
 
     template<uint8_t otherN, uint8_t otherK>
-    Fixed<n, k> operator+=(Fixed<otherN, otherK> other) {
+    Fixed<n, k>& operator+=(Fixed<otherN, otherK> other) {
         return *this = *this + other;
     }
 
     template<uint8_t otherN, uint8_t otherK>
-    Fixed<n, k> operator-=(Fixed<otherN, otherK> other) {
+    Fixed<n, k>& operator-=(Fixed<otherN, otherK> other) {
         return *this = *this - other;
     }
 
     template<uint8_t otherN, uint8_t otherK>
-    Fixed<n, k> operator*=(Fixed<otherN, otherK> other) {
+    Fixed<n, k>& operator*=(Fixed<otherN, otherK> other) {
         return *this = *this * other;
     }
 
+    Fixed<n, k>& operator*=(float other) {
+        return *this = *this * Fixed<32,16>(other);
+    }
+
     template<uint8_t otherN, uint8_t otherK>
-    Fixed<n, k> operator/=(Fixed<otherN, otherK> other) {
+    Fixed<n, k>& operator/=(Fixed<otherN, otherK> other) {
         return *this = *this / other;
     }
 
-    Fixed<n, k> operator/=(Fixed<n, k> other) {
+    Fixed<n, k> operator-(Fixed<n, k> other) {
         return Fixed<n, k>::from_raw(-v);
+    }
+
+    ostream &operator<<(ostream &out) {
+        return out << v / (double) (1 << 16);
     }
 };
 
@@ -158,21 +174,17 @@ struct Fixed {
 //    return x;
 //}
 
-ostream &operator<<(ostream &out, Fixed x) {
-    return out << x.v / (double) (1 << 16);
-}
+Fixed<32, 16> rho[256];
 
-Fixed rho[256];
-
-Fixed p[N][M]{}, old_p[N][M];
+Fixed<32, 16> p[N][M]{}, old_p[N][M];
 
 struct VectorField {
-    array<Fixed, deltas.size()> v[N][M];
-    Fixed &add(int x, int y, int dx, int dy, Fixed dv) {
+    array<Fixed<32, 16>, deltas.size()> v[N][M];
+    Fixed<32, 16> &add(int x, int y, int dx, int dy, Fixed<32, 16> dv) {
         return get(x, y, dx, dy) += dv;
     }
 
-    Fixed &get(int x, int y, int dx, int dy) {
+    Fixed<32, 16> &get(int x, int y, int dx, int dy) {
         size_t i = ranges::find(deltas, pair(dx, dy)) - deltas.begin();
         assert(i < deltas.size());
         return v[x][y][i];
@@ -186,9 +198,9 @@ int UT = 0;
 
 mt19937 rnd(1337);
 
-tuple<Fixed, bool, pair<int, int>> propagate_flow(int x, int y, Fixed lim) {
+tuple<Fixed<32, 16>, bool, pair<int, int>> propagate_flow(int x, int y, Fixed<32, 16> lim) {
     last_use[x][y] = UT - 1;
-    Fixed ret = 0;
+    Fixed<32, 16> ret = 0;
     for (auto [dx, dy] : deltas) {
         int nx = x + dx, ny = y + dy;
         if (field[nx][ny] != '#' && last_use[nx][ny] < UT) {
@@ -219,8 +231,8 @@ tuple<Fixed, bool, pair<int, int>> propagate_flow(int x, int y, Fixed lim) {
     return {ret, 0, {0, 0}};
 }
 
-Fixed random01() {
-    return Fixed::from_raw((rnd() & ((1 << 16) - 1)));
+Fixed<32, 16> random01() {
+    return Fixed<32, 16>::from_raw((rnd() & ((1 << 16) - 1)));
 }
 
 void propagate_stop(int x, int y, bool force = false) {
@@ -247,8 +259,8 @@ void propagate_stop(int x, int y, bool force = false) {
     }
 }
 
-Fixed move_prob(int x, int y) {
-    Fixed sum = 0;
+Fixed<32, 16> move_prob(int x, int y) {
+    Fixed<32, 16> sum = 0;
     for (size_t i = 0; i < deltas.size(); ++i) {
         auto [dx, dy] = deltas[i];
         int nx = x + dx, ny = y + dy;
@@ -266,8 +278,8 @@ Fixed move_prob(int x, int y) {
 
 struct ParticleParams {
     char type;
-    Fixed cur_p;
-    array<Fixed, deltas.size()> v;
+    Fixed<32, 16> cur_p;
+    array<Fixed<32, 16>, deltas.size()> v;
 
     void swap_with(int x, int y) {
         swap(field[x][y], type);
@@ -281,8 +293,8 @@ bool propagate_move(int x, int y, bool is_first) {
     bool ret = false;
     int nx = -1, ny = -1;
     do {
-        std::array<Fixed, deltas.size()> tres;
-        Fixed sum = 0;
+        std::array<Fixed<32, 16>, deltas.size()> tres;
+        Fixed<32, 16> sum = 0;
         for (size_t i = 0; i < deltas.size(); ++i) {
             auto [dx, dy] = deltas[i];
             int nx = x + dx, ny = y + dy;
@@ -303,7 +315,7 @@ bool propagate_move(int x, int y, bool is_first) {
             break;
         }
 
-        Fixed p = random01() * sum;
+        Fixed<32, 16> p = random01() * sum;
         size_t d = std::ranges::upper_bound(tres, p) - tres.begin();
 
         auto [dx, dy] = deltas[d];
@@ -337,7 +349,7 @@ int dirs[N][M]{};
 int main() {
     rho[' '] = 0.01;
     rho['.'] = 1000;
-    Fixed g = 0.1;
+    Fixed<32, 16> g = 0.1;
 
     for (size_t x = 0; x < N; ++x) {
         for (size_t y = 0; y < M; ++y) {
@@ -351,7 +363,7 @@ int main() {
 
     for (size_t i = 0; i < T; ++i) {
 
-        Fixed total_delta_p = 0;
+        Fixed<32, 16> total_delta_p = 0;
         // Apply external forces
         for (size_t x = 0; x < N; ++x) {
             for (size_t y = 0; y < M; ++y) {
@@ -447,6 +459,7 @@ int main() {
             }
         }
 
+        prop = true;
         if (prop) {
             cout << "Tick " << i << ":\n";
             for (size_t x = 0; x < N; ++x) {
