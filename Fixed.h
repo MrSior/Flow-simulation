@@ -14,7 +14,7 @@
 #include <tuple>
 #include <algorithm>
 
-//template <uint8_t N, uint8_t K>
+//template <int N, int K>
 //class Fixed {
 //    static_assert(N > K, "N must be greater than K");
 //    using value_t = std::conditional_t<
@@ -29,7 +29,7 @@
 //
 //    value_t v;
 //
-//    template <uint8_t N2, uint8_t K2>
+//    template <int N2, int K2>
 //    static constexpr value_t convert_value(value_t value) {
 //        if constexpr (K > K2) {
 //            return value << (K - K2);
@@ -72,46 +72,46 @@
 //
 //    constexpr Fixed abs() const { return from_raw(v < 0 ? -v : v); }
 //
-//    template <uint8_t N2, uint8_t K2>
+//    template <int N2, int K2>
 //    constexpr Fixed(const Fixed<N2, K2>& other)
 //            : v(convert_value<N2, K2>(other.raw_value())) {}
 //
-//    template <uint8_t N2, uint8_t K2>
+//    template <int N2, int K2>
 //    Fixed operator+(const Fixed<N2, K2>& other) const {
 //        return *this + Fixed(other);
 //    }
 //
-//    template <uint8_t N2, uint8_t K2>
+//    template <int N2, int K2>
 //    Fixed operator-(const Fixed<N2, K2>& other) const {
 //        return *this - Fixed(other);
 //    }
 //
-//    template <uint8_t N2, uint8_t K2>
+//    template <int N2, int K2>
 //    Fixed operator*(const Fixed<N2, K2>& other) const {
 //        return *this * Fixed(other);
 //    }
 //
-//    template <uint8_t N2, uint8_t K2>
+//    template <int N2, int K2>
 //    Fixed operator/(const Fixed<N2, K2>& other) const {
 //        return *this / Fixed(other);
 //    }
 //
-//    template <uint8_t N2, uint8_t K2>
+//    template <int N2, int K2>
 //    Fixed& operator+=(const Fixed<N2, K2>& other) {
 //        return *this = *this + other;
 //    }
 //
-//    template <uint8_t N2, uint8_t K2>
+//    template <int N2, int K2>
 //    Fixed& operator-=(const Fixed<N2, K2>& other) {
 //        return *this = *this - other;
 //    }
 //
-//    template <uint8_t N2, uint8_t K2>
+//    template <int N2, int K2>
 //    Fixed& operator*=(const Fixed<N2, K2>& other) {
 //        return *this = *this * other;
 //    }
 //
-//    template <uint8_t N2, uint8_t K2>
+//    template <int N2, int K2>
 //    Fixed& operator/=(const Fixed<N2, K2>& other) {
 //        return *this = *this / other;
 //    }
@@ -241,7 +241,7 @@
 //};
 
 
-template <uint8_t N, uint8_t K>
+template <int N, int K>
 class Fixed {
     static_assert(N > K, "N must be greater than K");
     using value_t = std::conditional_t<
@@ -256,7 +256,7 @@ class Fixed {
 
     value_t v;
 
-    template <uint8_t N2, uint8_t K2>
+    template <int N2, int K2>
     static constexpr value_t convert_value(value_t value) {
         if constexpr (K > K2) {
             return value << (K - K2);
@@ -269,8 +269,8 @@ class Fixed {
 
 
 public:
-    constexpr static uint8_t n = N;
-    constexpr static uint8_t k = K;
+    constexpr static int n = N;
+    constexpr static int k = K;
 
     constexpr Fixed(int v = 0) : v(v << K) {}
     constexpr Fixed(float f) : v(static_cast<value_t>(f * scale)) {}
@@ -311,46 +311,46 @@ public:
 
     constexpr Fixed abs() const { return from_raw(v < 0 ? -v : v); }
 
-    template <uint8_t N2, uint8_t K2>
+    template <int N2, int K2>
     constexpr Fixed(const Fixed<N2, K2>& other)
             : v(convert_value<N2, K2>(other.raw_value())) {}
 
-    template <uint8_t N2, uint8_t K2>
+    template <int N2, int K2>
     Fixed operator+(const Fixed<N2, K2>& other) const {
         return *this + Fixed(other);
     }
 
-    template <uint8_t N2, uint8_t K2>
+    template <int N2, int K2>
     Fixed operator-(const Fixed<N2, K2>& other) const {
         return *this - Fixed(other);
     }
 
-    template <uint8_t N2, uint8_t K2>
+    template <int N2, int K2>
     Fixed operator*(const Fixed<N2, K2>& other) const {
         return *this * Fixed(other);
     }
 
-    template <uint8_t N2, uint8_t K2>
+    template <int N2, int K2>
     Fixed operator/(const Fixed<N2, K2>& other) const {
         return *this / Fixed(other);
     }
 
-    template <uint8_t N2, uint8_t K2>
+    template <int N2, int K2>
     Fixed& operator+=(const Fixed<N2, K2>& other) {
         return *this = *this + other;
     }
 
-    template <uint8_t N2, uint8_t K2>
+    template <int N2, int K2>
     Fixed& operator-=(const Fixed<N2, K2>& other) {
         return *this = *this - other;
     }
 
-    template <uint8_t N2, uint8_t K2>
+    template <int N2, int K2>
     Fixed& operator*=(const Fixed<N2, K2>& other) {
         return *this = *this * other;
     }
 
-    template <uint8_t N2, uint8_t K2>
+    template <int N2, int K2>
     Fixed& operator/=(const Fixed<N2, K2>& other) {
         return *this = *this / other;
     }

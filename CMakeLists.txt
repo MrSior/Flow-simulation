@@ -9,3 +9,4 @@ add_executable(fluid_project
 add_executable(my-fluid my-fluid.cpp
         Fixed.h)
 #target_compile_definitions(my-fluid PRIVATE -DTEST=FLOAT\(2\))
+#set(CMAKE_CXX_FLAGS "-O3")

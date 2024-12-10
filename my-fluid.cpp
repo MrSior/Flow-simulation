@@ -6,6 +6,7 @@
 #include <random>
 #include <tuple>
 #include <algorithm>
+#include <sstream>
 
 #include "Fixed.h"
 
@@ -132,7 +133,7 @@ char field[N][M + 1] = {
 
 
 template <typename pType, typename velocityType, typename velocityFlowtype>
-class Simulation{
+class EngineImpl{
 public:
     using p_t = pType;
     using vel_t = velocityType;
@@ -432,8 +433,132 @@ public:
                     cout << field[x] << "\n";
                 }
             }
-//        system("clear");
         }
+    }
+
+    int curTick = 0;
+    Fixed<32, 16> rho[256];
+    Fixed<32, 16> g;
+    void initField(Fixed<32, 16> rho[256], Fixed<32, 16>& g) {
+        memcpy(this->rho, rho, 256 * sizeof (rho[0]));
+        this->g = g;
+        curTick = 0;
+        for (size_t x = 0; x < N; ++x) {
+            for (size_t y = 0; y < M; ++y) {
+                if (field[x][y] == '#')
+                    continue;
+                for (auto [dx, dy] : deltas) {
+                    dirs[x][y] += (field[x + dx][y + dy] != '#');
+                }
+            }
+        }
+    }
+
+    std::string next() {
+        p_t total_delta_p = 0;
+        // Apply external forces
+        for (size_t x = 0; x < N; ++x) {
+            for (size_t y = 0; y < M; ++y) {
+                if (field[x][y] == '#')
+                    continue;
+                if (field[x + 1][y] != '#')
+                    velocity.add(x, y, 1, 0, vel_t(g));
+            }
+        }
+
+        // Apply forces from p
+        memcpy(old_p, p, sizeof(p));
+        for (size_t x = 0; x < N; ++x) {
+            for (size_t y = 0; y < M; ++y) {
+                if (field[x][y] == '#')
+                    continue;
+                for (auto [dx, dy] : deltas) {
+                    int nx = x + dx, ny = y + dy;
+                    if (field[nx][ny] != '#' && old_p[nx][ny] < old_p[x][y]) {
+                        auto delta_p = old_p[x][y] - old_p[nx][ny];
+                        auto force = delta_p;
+                        auto &contr = velocity.get(nx, ny, -dx, -dy);
+                        if (contr * rho[(int) field[nx][ny]] >= vel_t(force)) {
+                            contr -= force / rho[(int) field[nx][ny]];
+                            continue;
+                        }
+                        force -= contr * rho[(int) field[nx][ny]];
+                        contr = 0;
+                        velocity.add(x, y, dx, dy, vel_t(force / rho[(int) field[x][y]]));
+                        p[x][y] -= force / dirs[x][y];
+                        total_delta_p -= force / dirs[x][y];
+                    }
+                }
+            }
+        }
+
+        // Make flow from velocities
+        velocity_flow = {};
+        bool prop = false;
+        do {
+            UT += 2;
+            prop = 0;
+            for (size_t x = 0; x < N; ++x) {
+                for (size_t y = 0; y < M; ++y) {
+                    if (field[x][y] != '#' && last_use[x][y] != UT) {
+                        auto [t, local_prop, _] = propagate_flow(x, y, 1);
+                        if (t > 0) {
+                            prop = 1;
+                        }
+                    }
+                }
+            }
+        } while (prop);
+
+        // Recalculate p with kinetic energy
+        for (size_t x = 0; x < N; ++x) {
+            for (size_t y = 0; y < M; ++y) {
+                if (field[x][y] == '#')
+                    continue;
+                for (auto [dx, dy] : deltas) {
+                    auto old_v = velocity.get(x, y, dx, dy);
+                    auto new_v = velocity_flow.get(x, y, dx, dy);
+                    if (old_v > 0) {
+                        assert(new_v <= vflow_t(old_v));
+                        velocity.get(x, y, dx, dy) = vel_t(new_v);
+                        auto force = (old_v - new_v) * rho[(int) field[x][y]];
+                        if (field[x][y] == '.')
+                            force *= 0.8;
+                        if (field[x + dx][y + dy] == '#') {
+                            p[x][y] += force / dirs[x][y];
+                            total_delta_p += force / dirs[x][y];
+                        } else {
+                            p[x + dx][y + dy] += force / dirs[x + dx][y + dy];
+                            total_delta_p += force / dirs[x + dx][y + dy];
+                        }
+                    }
+                }
+            }
+        }
+
+        UT += 2;
+        prop = false;
+        for (size_t x = 0; x < N; ++x) {
+            for (size_t y = 0; y < M; ++y) {
+                if (field[x][y] != '#' && last_use[x][y] != UT) {
+                    if (random01() < move_prob(x, y)) {
+                        prop = true;
+                        propagate_move(x, y, true);
+                    } else {
+                        propagate_stop(x, y, true);
+                    }
+                }
+            }
+        }
+
+        std::stringstream ss("");
+        if (prop) {
+            ss << "Tick " << curTick++ << ":\n";
+            for (size_t x = 0; x < N; ++x) {
+                ss << field[x] << "\n";
+            }
+        }
+        return ss.str();
     }
 };
 
@@ -446,6 +571,10 @@ int main() {
     rho['.'] = Fixed<32, 16>(1000);
     auto g = Fixed<32, 16>(0.1);
 
-    Simulation<Fixed<32, 9>, Fixed<32, 9>, double> sim;
-    sim.run(rho, g);
+    EngineImpl<Fixed<32, 9>, Fixed<32, 9>, double> engine;
+//    engine.run(rho, g);
+    engine.initField(rho, g);
+    for (int i = 0; i < 1000000; ++i) {
+        std::cout << engine.next();
+    }
 }
