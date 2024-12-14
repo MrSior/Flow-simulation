@@ -1,7 +1,3 @@
-//
-// Created by Семён on 04.12.2024.
-//
-
 #ifndef FLUID_PROJECT_FIXED_H
 #define FLUID_PROJECT_FIXED_H
 
@@ -14,434 +10,111 @@
 #include <tuple>
 #include <algorithm>
 
-//template <int N, int K>
-//class Fixed {
-//    static_assert(N > K, "N must be greater than K");
-//    using value_t = std::conditional_t<
-//    N <= 8, int8_t,
-//    std::conditional_t<
-//            N <= 16, int16_t,
-//            std::conditional_t<
-//            N <= 32, int32_t,
-//            std::conditional_t<N == 64, int64_t, void>>>>;
-//
-//    static constexpr int32_t scale = 1 << K;
-//
-//    value_t v;
-//
-//    template <int N2, int K2>
-//    static constexpr value_t convert_value(value_t value) {
-//        if constexpr (K > K2) {
-//            return value << (K - K2);
-//        } else if constexpr (K < K2) {
-//            return value >> (K2 - K);
-//        } else {
-//            return value;
-//        }
-//    }
-//
-//public:
-//    constexpr Fixed(int v = 0) : v(v << K) {}
-//    constexpr Fixed(float f) : v(static_cast<value_t>(f * scale)) {}
-//    constexpr Fixed(double f) : v(static_cast<value_t>(f * scale)) {}
-//
-//    static constexpr Fixed from_raw(value_t x) {
-//        Fixed ret;
-//        ret.v = x;
-//        return ret;
-//    }
-//
-//    constexpr auto operator<=>(const Fixed&) const = default;
-//    constexpr bool operator==(const Fixed&) const = default;
-//
-//    Fixed operator+(Fixed other) const { return from_raw(v + other.v); }
-//    Fixed operator-(Fixed other) const { return from_raw(v - other.v); }
-//    Fixed operator*(Fixed other) const {
-//        return from_raw(static_cast<int64_t>(v) * other.v / scale);
-//    }
-//    Fixed operator/(Fixed other) const {
-//        return from_raw(static_cast<int64_t>(v) * scale / other.v);
-//    }
-//
-//    Fixed& operator+=(Fixed other) { return *this = *this + other; }
-//    Fixed& operator-=(Fixed other) { return *this = *this - other; }
-//    Fixed& operator*=(Fixed other) { return *this = *this * other; }
-//    Fixed& operator/=(Fixed other) { return *this = *this / other; }
-//
-//    Fixed operator-() const { return from_raw(-v); }
-//
-//    constexpr Fixed abs() const { return from_raw(v < 0 ? -v : v); }
-//
-//    template <int N2, int K2>
-//    constexpr Fixed(const Fixed<N2, K2>& other)
-//            : v(convert_value<N2, K2>(other.raw_value())) {}
-//
-//    template <int N2, int K2>
-//    Fixed operator+(const Fixed<N2, K2>& other) const {
-//        return *this + Fixed(other);
-//    }
-//
-//    template <int N2, int K2>
-//    Fixed operator-(const Fixed<N2, K2>& other) const {
-//        return *this - Fixed(other);
-//    }
-//
-//    template <int N2, int K2>
-//    Fixed operator*(const Fixed<N2, K2>& other) const {
-//        return *this * Fixed(other);
-//    }
-//
-//    template <int N2, int K2>
-//    Fixed operator/(const Fixed<N2, K2>& other) const {
-//        return *this / Fixed(other);
-//    }
-//
-//    template <int N2, int K2>
-//    Fixed& operator+=(const Fixed<N2, K2>& other) {
-//        return *this = *this + other;
-//    }
-//
-//    template <int N2, int K2>
-//    Fixed& operator-=(const Fixed<N2, K2>& other) {
-//        return *this = *this - other;
-//    }
-//
-//    template <int N2, int K2>
-//    Fixed& operator*=(const Fixed<N2, K2>& other) {
-//        return *this = *this * other;
-//    }
-//
-//    template <int N2, int K2>
-//    Fixed& operator/=(const Fixed<N2, K2>& other) {
-//        return *this = *this / other;
-//    }
-//
-//    constexpr value_t raw_value() const { return v; }
-//
-//    friend std::ostream& operator<<(std::ostream& out, const Fixed& x) {
-//        return out << static_cast<double>(x.v) / scale;
-//    }
-//
-//    // Перегрузка операторов для float и double
-//    friend Fixed operator+(const Fixed& lhs, float rhs) {
-//        return lhs + Fixed(rhs);
-//    }
-//    friend Fixed operator+(float lhs, const Fixed& rhs) {
-//        return Fixed(lhs) + rhs;
-//    }
-//
-//    friend Fixed operator-(const Fixed& lhs, float rhs) {
-//        return lhs - Fixed(rhs);
-//    }
-//    friend Fixed operator-(float lhs, const Fixed& rhs) {
-//        return Fixed(lhs) - rhs;
-//    }
-//
-//    friend Fixed operator*(const Fixed& lhs, float rhs) {
-//        return lhs * Fixed(rhs);
-//    }
-//    friend Fixed operator*(float lhs, const Fixed& rhs) {
-//        return Fixed(lhs) * rhs;
-//    }
-//
-//    friend Fixed operator/(const Fixed& lhs, float rhs) {
-//        return lhs / Fixed(rhs);
-//    }
-//    friend Fixed operator/(float lhs, const Fixed& rhs) {
-//        return Fixed(lhs) / rhs;
-//    }
-//
-//    friend Fixed operator+(const Fixed& lhs, double rhs) {
-//        return lhs + Fixed(rhs);
-//    }
-//    friend Fixed operator+(double lhs, const Fixed& rhs) {
-//        return Fixed(lhs) + rhs;
-//    }
-//
-//    friend Fixed operator-(const Fixed& lhs, double rhs) {
-//        return lhs - Fixed(rhs);
-//    }
-//    friend Fixed operator-(double lhs, const Fixed& rhs) {
-//        return Fixed(lhs) - rhs;
-//    }
-//
-//    friend Fixed operator*(const Fixed& lhs, double rhs) {
-//        return lhs * Fixed(rhs);
-//    }
-//    friend Fixed operator*(double lhs, const Fixed& rhs) {
-//        return Fixed(lhs) * rhs;
-//    }
-//
-//    friend Fixed operator/(const Fixed& lhs, double rhs) {
-//        return lhs / Fixed(rhs);
-//    }
-//    friend Fixed operator/(double lhs, const Fixed& rhs) {
-//        return Fixed(lhs) / rhs;
-//    }
-//
-//    Fixed& operator+=(float rhs) {
-//        return *this = *this + Fixed(rhs);
-//    }
-//    Fixed& operator-=(float rhs) {
-//        return *this = *this - Fixed(rhs);
-//    }
-//    Fixed& operator*=(float rhs) {
-//        return *this = *this * Fixed(rhs);
-//    }
-//    Fixed& operator/=(float rhs) {
-//        return *this = *this / Fixed(rhs);
-//    }
-//
-//    Fixed& operator+=(double rhs) {
-//        return *this = *this + Fixed(rhs);
-//    }
-//    Fixed& operator-=(double rhs) {
-//        return *this = *this - Fixed(rhs);
-//    }
-//    Fixed& operator*=(double rhs) {
-//        return *this = *this * Fixed(rhs);
-//    }
-//    Fixed& operator/=(double rhs) {
-//        return *this = *this / Fixed(rhs);
-//    }
-//
-//    friend float& operator+=(float& lhs, const Fixed& rhs) {
-//        lhs += static_cast<float>(rhs);
-//        return lhs;
-//    }
-//    friend float& operator-=(float& lhs, const Fixed& rhs) {
-//        lhs -= static_cast<float>(rhs);
-//        return lhs;
-//    }
-//    friend float& operator*=(float& lhs, const Fixed& rhs) {
-//        lhs *= static_cast<float>(rhs);
-//        return lhs;
-//    }
-//    friend float& operator/=(float& lhs, const Fixed& rhs) {
-//        lhs /= static_cast<float>(rhs);
-//        return lhs;
-//    }
-//
-//    friend double& operator+=(double& lhs, const Fixed& rhs) {
-//        lhs += static_cast<double>(rhs);
-//        return lhs;
-//    }
-//    friend double& operator-=(double& lhs, const Fixed& rhs) {
-//        lhs -= static_cast<double>(rhs);
-//        return lhs;
-//    }
-//    friend double& operator*=(double& lhs, const Fixed& rhs) {
-//        lhs *= static_cast<double>(rhs);
-//        return lhs;
-//    }
-//    friend double& operator/=(double& lhs, const Fixed& rhs) {
-//        lhs /= static_cast<double>(rhs);
-//        return lhs;
-//    }
-//};
+namespace Physics {
+    template<int N, bool isFast>
+    struct realType {
+        using type =    std::conditional_t<N <= 8, int_fast8_t,
+                        std::conditional_t<N <= 16, int_fast16_t,
+                        std::conditional_t<N <= 32, int_fast32_t,
+                        std::conditional_t<N <= 64, int_fast64_t, void>>>>;
+    };
+
+    template<int N>
+    struct realType<N, false> {
+        using type =    std::conditional_t<N == 8, int8_t,
+                        std::conditional_t<N == 16, int16_t,
+                        std::conditional_t<N == 32, int32_t,
+                        std::conditional_t<N == 64, int64_t, void>>>>;
+    };
+
+    template<int N, bool isFast>
+    using real_t = realType<N, isFast>::type;
 
 
-template <int N, int K>
-class Fixed {
-    static_assert(N > K, "N must be greater than K");
-    using value_t = std::conditional_t<
-            N <= 8, int8_t,
-            std::conditional_t<
-                    N <= 16, int16_t,
-                    std::conditional_t<
-                            N <= 32, int32_t,
-                            std::conditional_t<N == 64, int64_t, void>>>>;
+    template<int N, int K, bool fast = false>
+    struct Fixed {
+        static_assert(N > K, "N must be greater than K");
+        using value_t = real_t<N, fast>;
 
-    static constexpr value_t scale = 1 << K;
+        constexpr static value_t scale = 1ll << K;
+        value_t v = 0;
 
-    value_t v;
+        static const int k = K;
 
-    template <int N2, int K2>
-    static constexpr value_t convert_value(value_t value) {
-        if constexpr (K > K2) {
-            return value << (K - K2);
-        } else if constexpr (K < K2) {
-            return value >> (K2 - K);
-        } else {
-            return value;
+        template<int otherN, int otherK, bool otherIsFast>
+        constexpr Fixed(const Fixed<otherN, otherK, otherIsFast> &other) {
+            if constexpr (otherK > K) {
+                v = other.v >> (otherK - K);
+            } else {
+                v = other.v << (K - otherK);
+            }
         }
-    }
 
 
-public:
-    constexpr static int n = N;
-    constexpr static int k = K;
+        constexpr Fixed(int64_t v) : v(v << K) {}
+        constexpr Fixed(float f) : v(f * Fixed::scale) {}
+        constexpr Fixed(double f) : v(f * Fixed::scale) {}
+        constexpr Fixed() : v(0) {}
 
-    constexpr Fixed(int v = 0) : v(v << K) {}
-    constexpr Fixed(float f) : v(static_cast<value_t>(f * scale)) {}
-    constexpr Fixed(double f) : v(static_cast<value_t>(f * scale)) {}
+        static constexpr Fixed from_raw(int x) {
+            Fixed ret{};
+            ret.v = x;
+            return ret;
+        }
 
-    explicit operator double() const {
-        return static_cast<double>(v) / scale;
-    }
+        auto operator<=>(const Fixed &) const = default;
+        bool operator==(const Fixed &) const = default;
 
-    explicit operator float () const {
-        return static_cast<float>(v) / scale;
-    }
+        explicit constexpr operator float() { return float(v) / Fixed::scale; }
+        explicit constexpr operator double() { return double(v) / Fixed::scale; }
 
-    static constexpr Fixed from_raw(value_t x) {
-        Fixed ret;
-        ret.v = x;
-        return ret;
-    }
+        friend Fixed operator+(Fixed a, Fixed b) {
+            return Fixed::from_raw(a.v + b.v);
+        }
 
-    constexpr auto operator<=>(const Fixed&) const = default;
-    constexpr bool operator==(const Fixed&) const = default;
+        friend Fixed operator-(Fixed a, Fixed b) {
+            return Fixed::from_raw(a.v - b.v);
+        }
 
-    Fixed operator+(Fixed other) const { return from_raw(v + other.v); }
-    Fixed operator-(Fixed other) const { return from_raw(v - other.v); }
-    Fixed operator*(Fixed other) const {
-        return from_raw(static_cast<int64_t>(v) * other.v / scale);
-    }
-    Fixed operator/(Fixed other) const {
-        return from_raw(static_cast<int64_t>(v) * scale / other.v);
-    }
+        friend Fixed operator*(Fixed a, Fixed b) {
+            return Fixed::from_raw((static_cast<int64_t>(a.v) * b.v) >> K);
+        }
 
-    Fixed& operator+=(Fixed other) { return *this = *this + other; }
-    Fixed& operator-=(Fixed other) { return *this = *this - other; }
-    Fixed& operator*=(Fixed other) { return *this = *this * other; }
-    Fixed& operator/=(Fixed other) { return *this = *this / other; }
+        friend Fixed operator/(Fixed a, Fixed b) {
+            return Fixed::from_raw((static_cast<int64_t>(a.v) << K) / b.v);
+        }
 
-    Fixed operator-() const { return from_raw(-v); }
+        friend Fixed &operator+=(Fixed &a, Fixed b) {
+            return a = a + b;
+        }
 
-    constexpr Fixed abs() const { return from_raw(v < 0 ? -v : v); }
+        friend Fixed &operator-=(Fixed &a, Fixed b) {
+            return a = a - b;
+        }
 
-    template <int N2, int K2>
-    constexpr Fixed(const Fixed<N2, K2>& other)
-            : v(convert_value<N2, K2>(other.raw_value())) {}
+        friend Fixed &operator*=(Fixed &a, Fixed b) {
+            return a = a * b;
+        }
 
-    template <int N2, int K2>
-    Fixed operator+(const Fixed<N2, K2>& other) const {
-        return *this + Fixed(other);
-    }
+        friend Fixed &operator/=(Fixed &a, Fixed b) {
+            return a = a / b;
+        }
 
-    template <int N2, int K2>
-    Fixed operator-(const Fixed<N2, K2>& other) const {
-        return *this - Fixed(other);
-    }
+        friend Fixed operator-(Fixed x) {
+            return Fixed::from_raw(-x.v);
+        }
 
-    template <int N2, int K2>
-    Fixed operator*(const Fixed<N2, K2>& other) const {
-        return *this * Fixed(other);
-    }
+        friend Fixed fabs(Fixed x) {
+            if (x.v < 0) {
+                x.v = -x.v;
+            }
+            return x;
+        }
 
-    template <int N2, int K2>
-    Fixed operator/(const Fixed<N2, K2>& other) const {
-        return *this / Fixed(other);
-    }
-
-    template <int N2, int K2>
-    Fixed& operator+=(const Fixed<N2, K2>& other) {
-        return *this = *this + other;
-    }
-
-    template <int N2, int K2>
-    Fixed& operator-=(const Fixed<N2, K2>& other) {
-        return *this = *this - other;
-    }
-
-    template <int N2, int K2>
-    Fixed& operator*=(const Fixed<N2, K2>& other) {
-        return *this = *this * other;
-    }
-
-    template <int N2, int K2>
-    Fixed& operator/=(const Fixed<N2, K2>& other) {
-        return *this = *this / other;
-    }
-
-    constexpr value_t raw_value() const { return v; }
-
-    friend std::ostream& operator<<(std::ostream& out, const Fixed& x) {
-        return out << static_cast<double>(x.v) / scale;
-    }
-
-
-
-    friend Fixed operator+(Fixed& f, double val){
-        return f + Fixed(val);
-    }
-    friend Fixed operator+(double val, Fixed& f){
-        return f + Fixed(val);
-    }
-
-
-    friend Fixed operator-(Fixed& f, double val){
-        return f - Fixed(val);
-    }
-    friend Fixed operator-(double val, Fixed& f){
-        return f - Fixed(val);
-    }
-
-
-    friend Fixed operator*(Fixed& f, double val){
-        return f * Fixed(val);
-    }
-    friend Fixed operator*(double val, Fixed& f){
-        return f * Fixed(val);
-    }
-
-    friend Fixed operator/(Fixed& f, double val){
-        return f / Fixed(val);
-    }
-    friend Fixed operator/(double val, Fixed& f){
-        return f / Fixed(val);
-    }
-
-
-    friend double& operator+=(double& lhs, const Fixed& rhs) {
-        lhs += static_cast<double>(rhs.v) / scale;
-        return lhs;
-    }
-    friend double& operator-=(double& lhs, const Fixed& rhs) {
-        lhs -= static_cast<double>(rhs.v) / scale;;
-        return lhs;
-    }
-    friend double& operator*=(double& lhs, const Fixed& rhs) {
-        lhs *= static_cast<double>(rhs.v) / scale;;
-        return lhs;
-    }
-    friend double& operator/=(double& lhs, const Fixed& rhs) {
-        lhs /= static_cast<double>(rhs.v) / scale;;
-        return lhs;
-    }
-
-
-    friend float& operator+=(float& lhs, const Fixed& rhs) {
-        lhs += static_cast<float>(rhs.v) / scale;
-        return lhs;
-    }
-    friend float& operator-=(float& lhs, const Fixed& rhs) {
-        lhs -= static_cast<float>(rhs.v) / scale;;
-        return lhs;
-    }
-    friend float& operator*=(float& lhs, const Fixed& rhs) {
-        lhs *= static_cast<float>(rhs.v) / scale;;
-        return lhs;
-    }
-    friend float& operator/=(float& lhs, const Fixed& rhs) {
-        lhs /= static_cast<float>(rhs.v) / scale;;
-        return lhs;
-    }
-
-
-    Fixed& operator+=(double rhs) {
-        return *this = *this + Fixed(rhs);
-    }
-    Fixed& operator-=(double rhs) {
-        return *this = *this - Fixed(rhs);
-    }
-    Fixed& operator*=(double rhs) {
-        return *this = *this * Fixed(rhs);
-    }
-    Fixed& operator/=(double rhs) {
-        return *this = *this / Fixed(rhs);
-    }
-};
+        friend std::ostream &operator<<(std::ostream &out, Fixed x) {
+            return out << x.v / (double) (1 << K);
+        }
+    };
+}
 
 #endif //FLUID_PROJECT_FIXED_H
