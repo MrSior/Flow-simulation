@@ -4,6 +4,9 @@ project(fluid_project)
 set(CMAKE_CXX_STANDARD 20)
 
 #set(CMAKE_CXX_FLAGS "-O3")
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(CMAKE_CXX_FLAGS "-mbig-obj")
+endif()
 
 add_executable(FluidEngine Fixed.h
         customArray.h

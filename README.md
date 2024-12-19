@@ -14,7 +14,7 @@ cd cmake-build
 cmake ..
 cmake --build .
 ```
-## Запуск и использованиk
+## Запуск и использование
 ### Пример:
 ```shell
 ./FluidEngine --p-type="FIXED(32,9)" --v-type="FIXED(32,9)" --v-flow-type="FIXED(32,9)" --input-file=../input.txt --save-file=../SimSave.txt
