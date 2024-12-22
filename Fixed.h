@@ -33,7 +33,6 @@ namespace Physics {
 
     template<int N, int K, bool fast = false>
     struct Fixed {
-        static_assert(N > K, "N must be greater than K");
         using value_t = real_t<N, fast>;
 
         constexpr static value_t scale = 1ll << K;
